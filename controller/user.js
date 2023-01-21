@@ -23,6 +23,18 @@ class Controller {
   // REGISTER
   static async register(req, res, next) {
     try {
+      const { username, email, password, photo, address } = req.body;
+      const dataUser = await User.create({
+        username,
+        email,
+        password,
+        photo,
+        address,
+      });
+      res.status(201).json({
+        statusCode: 201,
+        message: "Create New Account Successfully",
+      });
     } catch (error) {
       next(error);
     }
