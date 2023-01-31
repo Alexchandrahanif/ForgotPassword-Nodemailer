@@ -26,6 +26,18 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      uuid: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg: "Uuid is required",
+          },
+          notNull: {
+            msg: "Uuid is required",
+          },
+        },
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,

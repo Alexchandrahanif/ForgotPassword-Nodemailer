@@ -13,6 +13,7 @@ const authentication = async (req, res, next) => {
     req.user = {
       id: dataUser.id,
       email: dataUser.email,
+      uuid: dataUser.uuid,
     };
 
     next();

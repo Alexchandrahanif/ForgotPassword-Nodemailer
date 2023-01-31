@@ -28,7 +28,22 @@ const handleError = (err, req, res, next) => {
     message = "Invalid token";
   } else if (err.name === "Forbidden") {
     code = 403;
-    message = "You are not authorized";
+    message = "Your Unauthorized";
+  } else if (err.name === "Old Password Not Found") {
+    code = 400;
+    message = "Old Password Not Found";
+  } else if (err.name === "New Password Not Found") {
+    code = 400;
+    message = "New Password Not Found";
+  } else if (err.name === "Confirm New Password Not Found") {
+    code = 400;
+    message = "Confirm New Password Not Found";
+  } else if (err.name === "Account Not Found") {
+    code = 400;
+    message = "Account Not Found";
+  } else if (err.name === "Password Not Match") {
+    code = 400;
+    message = "Password Not Match";
   }
   res.status(code).json({
     message: message,

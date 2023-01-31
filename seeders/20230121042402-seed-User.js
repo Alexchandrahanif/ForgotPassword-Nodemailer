@@ -1,6 +1,7 @@
 "use strict";
 
 const { hashingPassword } = require("../helper/helper");
+const { v4: uuidv4 } = require("uuid");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -17,6 +18,7 @@ module.exports = {
     const dataUser = require("../data/user.json");
 
     dataUser.forEach((el) => {
+      el.uuid = uuidv4();
       el.password = hashingPassword(el.password);
       el.createdAt = el.updatedAt = new Date();
     });

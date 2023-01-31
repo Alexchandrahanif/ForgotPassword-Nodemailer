@@ -82,9 +82,10 @@ class Controller {
       res.status(200).json({
         statusCode: 200,
         message: "Login Successfully",
-        data: access_token,
+        access_token: access_token,
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
@@ -93,21 +94,21 @@ class Controller {
   static async uploadPhoto(req, res, next) {
     try {
       // Request
-      const { id } = req.user;
+      const { uuid } = req.user;
       const { photo } = req.body;
 
       // Validasi
-      if (!req.file) {
-        throw { name: "Photo is required" };
-      }
+      // if (!req.file) {
+      //   throw { name: "Photo is required" };
+      // }
 
-      await User.udpate(
+      await User.update(
         {
           photo: photo,
         },
         {
           where: {
-            id: id,
+            uuid: uuid,
           },
         }
       );
@@ -116,6 +117,7 @@ class Controller {
         message: "Update photo User Successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
@@ -123,33 +125,51 @@ class Controller {
   // CHANGE PASSWORD
   static async changePassword(req, res, next) {
     try {
-      const { id } = req.user;
-      const { newPassword, confirmPassword } = req.body;
+      const { uuid } = req.user;
+      const { oldPassword, newPassword, confirmPassword } = req.body;
 
-      const dataUser = await User.findByPk(id);
+      const dataUser = await User.findOne({
+        where: {
+          uuid: uuid,
+        },
+      });
+      console.log(dataUser.password);
 
+      // Validasi
+      if (!oldPassword) {
+        throw { name: "Old Password Not Found" };
+      }
       if (!newPassword) {
         throw { name: "New Password Not Found" };
       }
       if (!confirmPassword) {
         throw { name: "Confirm New Password Not Found" };
       }
+      if (!comparePassword(oldPassword, dataUser.password)) {
+        throw { name: "Forbidden" };
+      }
       if (newPassword !== confirmPassword) {
         throw { name: "Password Not Same" };
       }
-      if (!comparePassword(dataUser.password, confirmPassword)) {
-        throw { name: "Password Not Macth" };
-      }
 
-      const data = await User.update({
-        password: hashingPassword(confirmPassword),
-      });
+      // Update Password
+      const data = await User.update(
+        {
+          password: hashingPassword(confirmPassword),
+        },
+        {
+          where: {
+            uuid: uuid,
+          },
+        }
+      );
 
       res.status(200).json({
         statusCode: 200,
         message: "Update Password Successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
@@ -157,8 +177,9 @@ class Controller {
   // FORGOT PASSWORD
   static async forgotPassword(req, res, next) {
     try {
-      const { id } = req.user;
+      const { uuid } = req.user;
       const { email } = req.body;
+      let link = "";
 
       const dataUser = await User.findOne({
         where: {
@@ -167,20 +188,23 @@ class Controller {
       });
 
       if (!dataUser) {
-        throw { name: "Email Not Found" };
+        throw { name: "Account Not Found" };
       }
       if (dataUser) {
         const payload = {
           id: dataUser.id,
           email: dataUser.email,
+          uuid: dataUser.uuid,
         };
         const token = createAccessToken(payload);
-        const link = `http://localhost:3000/resetPassword/${id}/${token}`;
+        link = `http://localhost:3000/resetPassword/${uuid}/${token}`;
+        console.log(link);
       }
 
       res.status(200).json({
         statusCode: 200,
         message: `Proses Change Password`,
+        link: link,
       });
     } catch (error) {
       next(error);
@@ -190,20 +214,32 @@ class Controller {
   // RESET PASSWORD
   static async resetPassword(req, res, next) {
     try {
-      const { id, token } = req.params;
+      const { uuid, token } = req.params;
+      const { newPassword, confirmPassword } = req.body;
       const user = verifyAccessToken(token);
       if (!user) {
         throw { name: "Access Token is Wrong" };
       }
+      if (!newPassword) {
+        throw { name: "New Password Not Found" };
+      }
+      if (!confirmPassword) {
+        throw { name: "Confirm New Password Not Found" };
+      }
+
+      if (newPassword !== confirmPassword) {
+        throw { name: "Password Not Match" };
+      }
+      console.log(user);
 
       if (user) {
         await User.update(
           {
-            password: hashingPassword(user.password),
+            password: hashingPassword(confirmPassword),
           },
           {
             where: {
-              id: id,
+              uuid: uuid,
             },
           }
         );
@@ -214,6 +250,7 @@ class Controller {
         message: "Update Password Successfully",
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }

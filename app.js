@@ -1,3 +1,4 @@
+require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
 const handleError = require("./middleware/handleError");
@@ -14,5 +15,5 @@ app.use("/", router);
 app.use(handleError);
 
 app.listen(port, () => {
-  console.log(`semoga bisa maksimal, amin`);
+  console.log(`Forgot Password Connect !!`);
 });
