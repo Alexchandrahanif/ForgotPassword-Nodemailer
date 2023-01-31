@@ -44,6 +44,9 @@ const handleError = (err, req, res, next) => {
   } else if (err.name === "Password Not Match") {
     code = 400;
     message = "Password Not Match";
+  } else if (err.name === "Photo is Required") {
+    code = 400;
+    message = "Photo is Required";
   }
   res.status(code).json({
     message: message,

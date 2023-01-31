@@ -4,6 +4,8 @@ const {
   hashingPassword,
   verifyAccessToken,
 } = require("../helper/helper");
+const { v4: uuidv4 } = require("uuid");
+const emailSend = require("../middleware/nodemailer");
 const { User } = require("../models/index");
 
 class Controller {
@@ -31,12 +33,17 @@ class Controller {
     try {
       const { username, email, password, photo, address } = req.body;
       const dataUser = await User.create({
+        uuid: uuidv4(),
         username,
         email,
         password,
         photo,
         address,
       });
+
+      const message = `Selamat ${dataUser.username} Register berhasil, selamat datang di website kami, silahkan Login`;
+      emailSend(dataUser, message, null);
+
       res.status(201).json({
         statusCode: 201,
         message: "Create New Account Successfully",
@@ -95,16 +102,15 @@ class Controller {
     try {
       // Request
       const { uuid } = req.user;
-      const { photo } = req.body;
 
       // Validasi
-      // if (!req.file) {
-      //   throw { name: "Photo is required" };
-      // }
+      if (!req.file) {
+        throw { name: "Photo is Required" };
+      }
 
       await User.update(
         {
-          photo: photo,
+          photo: req.file.path,
         },
         {
           where: {
@@ -133,7 +139,6 @@ class Controller {
           uuid: uuid,
         },
       });
-      console.log(dataUser.password);
 
       // Validasi
       if (!oldPassword) {
@@ -163,6 +168,10 @@ class Controller {
           },
         }
       );
+
+      console.log(dataUser);
+      const message = `Selamat Password anda berhasil di ubah`;
+      emailSend(dataUser, message, null);
 
       res.status(200).json({
         statusCode: 200,
@@ -201,6 +210,7 @@ class Controller {
         console.log(link);
       }
 
+      emailSend(dataUser, null, link);
       res.status(200).json({
         statusCode: 200,
         message: `Proses Change Password`,
