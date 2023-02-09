@@ -34,4 +34,10 @@ router.patch(
   Controller.resetPassword
 );
 
+router.get("/by/:uuid", Controller.get);
+router.get("/direktur", Controller.getDirektur);
+
+router.post("/direktur", Controller.createDirektur);
+router.post("/company", Controller.createCompany);
+
 module.exports = router;

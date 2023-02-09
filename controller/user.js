@@ -6,7 +6,7 @@ const {
 } = require("../helper/helper");
 const { v4: uuidv4 } = require("uuid");
 const emailSend = require("../middleware/nodemailer");
-const { User } = require("../models/index");
+const { User, Company, Direktur } = require("../models/index");
 
 class Controller {
   // GET ALL USERS
@@ -261,6 +261,70 @@ class Controller {
       });
     } catch (error) {
       console.log(error);
+      next(error);
+    }
+  }
+
+  static async createCompany(req, res, next) {
+    try {
+      const { name, location } = req.body;
+      const data = await Company.create({
+        id: uuidv4(),
+        name,
+        location,
+      });
+
+      res.status(200).json({
+        statusCode: 200,
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+
+  static async get(req, res, next) {
+    try {
+      const { uuid } = req.params;
+      const data = await Company.findByPk(uuid);
+      res.status(200).json({
+        message: "berhasil",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+
+  static async createDirektur(req, res, next) {
+    try {
+      const { name, CompanyId } = req.body;
+      const data = await Direktur.create({
+        id: uuidv4(),
+        name: name,
+        CompanyId: CompanyId,
+      });
+      res.status(200).json({
+        message: "Berhasil",
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getDirektur(req, res, next) {
+    try {
+      const data = await Direktur.findAll({
+        include: [Company],
+      });
+
+      res.status(200).json({
+        message: data,
+      });
+    } catch (error) {
       next(error);
     }
   }
