@@ -34,7 +34,7 @@ router.patch(
   Controller.resetPassword
 );
 
-router.get("/by/:uuid", Controller.get);
+router.get("/company", Controller.get);
 router.get("/direktur", Controller.getDirektur);
 
 router.post("/direktur", Controller.createDirektur);

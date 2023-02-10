@@ -269,7 +269,6 @@ class Controller {
     try {
       const { name, location } = req.body;
       const data = await Company.create({
-        id: uuidv4(),
         name,
         location,
       });
@@ -286,8 +285,9 @@ class Controller {
 
   static async get(req, res, next) {
     try {
-      const { uuid } = req.params;
-      const data = await Company.findByPk(uuid);
+      const data = await Company.findAll({
+        include: Direktur,
+      });
       res.status(200).json({
         message: "berhasil",
         data: data,
@@ -302,7 +302,6 @@ class Controller {
     try {
       const { name, CompanyId } = req.body;
       const data = await Direktur.create({
-        id: uuidv4(),
         name: name,
         CompanyId: CompanyId,
       });
@@ -311,6 +310,7 @@ class Controller {
         data: data,
       });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
