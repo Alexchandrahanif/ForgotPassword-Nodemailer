@@ -267,11 +267,14 @@ class Controller {
 
   static async createCompany(req, res, next) {
     try {
-      const { name, location } = req.body;
-      const data = await Company.create({
+      const { name, DirekturId } = req.body;
+      const body = {
         name,
-        location,
-      });
+      };
+      if (DirekturId) {
+        body.DirekturId = DirekturId;
+      }
+      const data = await Company.create(body);
 
       res.status(200).json({
         statusCode: 200,
@@ -303,7 +306,6 @@ class Controller {
       const { name, CompanyId } = req.body;
       const data = await Direktur.create({
         name: name,
-        CompanyId: CompanyId,
       });
       res.status(200).json({
         message: "Berhasil",
